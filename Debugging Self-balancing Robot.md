@@ -31,5 +31,68 @@ __Debugging the Robot:__
  
  4. __Debugging the code__ - It should be noted that only after all the physical debugging mentioned above is carried out, the next step of debugging the code should be inititated. It is quite evident that improper programming can lead to potential non-functionality of our machine. Hence, the code should be debugged several times before running to ensure the validity of our code. Our code uses PID algorithm to maintain balance. 
  
- First of all, we need to check whether the IMU sensor is providing the correct output. For eg: If the robot is totally still, the sensor should output 0 acceleration(along X,y axes) and 0 angular velocity. __Serial monitor__ is the best way to debug the programmed  code
+       First of all, we need to check whether the IMU sensor is providing the correct output. For eg: If the robot is totally still, the  sensor should output 0 acceleration(along X,y axes) and 0 angular velocity. __Serial monitor__ is the best way to debug the programmed  code. Serial monitor allows you to output the observed value of any component connected with the MCU and compare its value with the expected output. Below is the code to output the acceleratio and gyro values from the IMU sensor to the Serial monitor.
+ 
+``` 
+const int MPU = 0x68; // MPU6050 I2C address
+float AccX, AccY, AccZ;
+float GyroX, GyroY, GyroZ;
+float accAngleX, accAngleY, gyroAngleX, gyroAngleY, gyroAngleZ;
+float roll, pitch, yaw;
+float AccErrorX, AccErrorY, GyroErrorX, GyroErrorY, GyroErrorZ;
+float elapsedTime, currentTime, previousTime;
+int c = 0;
+void setup() {
+  Serial.begin(19200);
+  Wire.begin();                      // Initialize comunication
+  Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
+  Wire.write(0x6B);                  // Talk to the register 6B
+  Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
+  Wire.endTransmission(true);        //end the transmission
+  calculate_IMU_error();
+  delay(20);
+}
+void loop() {
+  // === Read acceleromter data === //
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 6, true); // Read 6 registers total, each axis value is stored in 2 registers
+  //For a range of +-2g, we need to divide the raw values by 16384, according to the datasheet
+  AccX = (Wire.read() << 8 | Wire.read()) / 16384.0; // X-axis value
+  AccY = (Wire.read() << 8 | Wire.read()) / 16384.0; // Y-axis value
+  AccZ = (Wire.read() << 8 | Wire.read()) / 16384.0; // Z-axis value
+  // === Read gyroscope data === //
+  previousTime = currentTime;        // Previous time is stored before the actual time read
+  currentTime = millis();            // Current time actual time read
+  elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
+  Wire.beginTransmission(MPU);
+  Wire.write(0x43); // Gyro data first register address 0x43
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 6, true); // Read 4 registers total, each axis value is stored in 2 registers
+  GyroX = (Wire.read() << 8 | Wire.read()) / 131.0; // For a 250deg/s range we have to divide first the raw value by 131.0, according to the datasheet
+  GyroY = (Wire.read() << 8 | Wire.read()) / 131.0;
+  GyroZ = (Wire.read() << 8 | Wire.read()) / 131.0;
+  
+  Serial.print(AccX);
+  Serial.print("");
+  Serial.print(AccY);
+  Serial.print("");
+  Serial.println(AccZ);
+  Serial.print(GyroX);
+  Serial.print("");
+  Serial.print(GyroY);
+  Serial.print("");
+  Serial.println(GyroZ);
+  }
+  ```
+   On getting the output on Serial monitor screen, we can compare the output values. For eg: when the robot is still(perpendicular to ground), acceleration along Y and Z should be zero and that along X should be approximately equal to g(9.8). Similarly, the output can be checked for different positions.
+   
+   
+   If none of the above debugging step provide any vaueable information about the bug in the system, then one or many of the components might be faulty. Consider buying new components from the below resources section. 
+   
+   ### Resources
+   
+  * [MPU 6050](https://robu.in/product/mpu-6050-gyro-sensor-2-accelerometer/?gclid=CjwKCAjwwYP2BRBGEiwAkoBpAnCFNKDNL7hlFLU60GJX9Wi971pqqGnX0q__YpHHQyDJjibJfqbvARoC4kMQAvD_BwE)
+  * [Arduino](https://www.amazon.in/Uno-ATmega328P-Compatible-ATMEGA16U2-Arduino/dp/B015C7SC5U/ref=sr_1_4?crid=AR5TA4SUBJDM&dchild=1&keywords=arduino+uno&qid=1589893793&sprefix=Ard%2Caps%2C265&sr=8-4)
  
