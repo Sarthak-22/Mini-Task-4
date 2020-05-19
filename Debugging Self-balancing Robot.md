@@ -1,8 +1,9 @@
-### Self Balancing Robot - Debugged
+## Self Balancing Robot - Debugged
 
-#### __Problem Statement__ - Building a self-balanced two wheel robot using a PIC32 microcontroller and a PID controller to maintain its balance.
+### __Problem Statement__ - 
+Building a self-balanced two wheel robot using a PIC32 microcontroller and a PID controller to maintain its balance.
 
-#### __Project Pipeline__ - 
+### __Project Pipeline__ - 
 
    Extracting data from IMU sensors => Filtering the values (converting the voltage values to corresponding physical values) through MCU => Feeding the data to PID loop(algorithm) => Sending signals to motors/drivers => Environment(robot) action => (Repeat)
    
@@ -13,7 +14,7 @@
    
    Hence, we can debug the two parts seperately to find the possible solution.
 
-#### __Debugging the Robot:__
+### __Debugging the Robot:__
 
   1. __Power Supply__ - After all the components have been properly attached and all the connections been made, the first step would be to check whether the circuit is provided with proper supply according to the rating of each components. For eg. It might be possible that different components need different supply of power (MCU with 3v, Motors with 5V). Hence, we need to ensure that the different components are provided with proper power supply according to their rating and grounded appropriately. To just easen up our process, we can use a glowing LED as an indicator for power supply(similar to orange LED in Arduino). This step might seem quite trivial but it is actually quite important as it can be easily ignored by anyone. 
   
